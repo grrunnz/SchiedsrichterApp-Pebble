@@ -1,0 +1,22 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "grrunnz@live.de",
+    "longName": "SchiedsrichterApp",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "sdkVersion": "3",
+    "shortName": "SchiedsrichterApp",
+    "targetPlatforms": [
+        "basalt"
+    ],
+    "uuid": "508723dd-682d-41cb-a0fc-600701db505c",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
