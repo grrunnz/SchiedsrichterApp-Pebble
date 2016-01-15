@@ -1,5 +1,7 @@
 #include <pebble.h>
 
+#include "windows/dialog_choice_window.h"
+
   typedef enum {
   Minutes2,
   Minutes5,
@@ -27,6 +29,7 @@ static char s_uptime_buffer[32];
 static char s_countdown_buffer[32];
 int StopwatchMinutesVibrate;
 bool countdownsub = false;
+bool stopwatchsub = false;
 
 static int s_countdowntime = 300;
 static int s_countdownstart = 300;

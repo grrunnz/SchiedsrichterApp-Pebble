@@ -217,6 +217,8 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 /*********************************** Clicks ***********************************/
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
+  //stopwatchsub = !stopwatchsub;
+  
   // Check to see if the worker is currently active
   bool running = app_worker_is_running();
 
@@ -272,6 +274,24 @@ void down_long_click_handler(ClickRecognizerRef recognizer, void *context) {
   }  
 }
 
+void back_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if(countdownsub)
+  { 
+    
+    //save data
+    
+    
+    dialog_choice_window_push();
+    
+  }
+  else
+  {
+    // save data 
+    
+    window_stack_pop_all(true);
+  }
+}
+
 void down_long_click_release_handler(ClickRecognizerRef recognizer, void *context) {
   //
 }
@@ -301,6 +321,7 @@ static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
+  window_single_click_subscribe(BUTTON_ID_BACK, back_click_handler);
   
   // long click config:
   window_long_click_subscribe(BUTTON_ID_UP, 700, up_long_click_handler, up_long_click_release_handler);
