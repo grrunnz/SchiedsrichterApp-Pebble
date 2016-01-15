@@ -29,6 +29,8 @@ static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
 }
 
+/******************************** Window *********************************/
+
 
 static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);

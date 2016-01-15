@@ -6,6 +6,8 @@
 
 #define PERSIST_KEY_TICKS 52
 #define PERSIST_KEY_STOPWATCHVIBRATE 53
+#define PERSIST_KEY_COUNTDOWNTICKS 54
+#define PERSIST_KEY_COUNTDOWNSTART 55
   
 
 
@@ -39,18 +41,21 @@ static void action_performed_callback(ActionMenu *action_menu, const ActionMenuI
           countdownsub = false;
           s_countdownstart = 120; 
           s_countdowntime = s_countdownstart;  
+          persist_write_int(PERSIST_KEY_COUNTDOWNSTART, s_countdownstart);
           updateCountdownLayer(0,(s_countdownstart/60),0);
           break;
           case Minutes5:
           countdownsub = false;
           s_countdownstart = 5*60; 
-          s_countdowntime = s_countdownstart;  
+          s_countdowntime = s_countdownstart;
+          persist_write_int(PERSIST_KEY_COUNTDOWNSTART, s_countdownstart);
           updateCountdownLayer(0,(s_countdownstart/60),0);
           break;
           case Minutes10:  
           countdownsub = false;
           s_countdownstart = 10*60; 
-          s_countdowntime = s_countdownstart;  
+          s_countdowntime = s_countdownstart;
+          persist_write_int(PERSIST_KEY_COUNTDOWNSTART, s_countdownstart);
           updateCountdownLayer(0,(s_countdownstart/60),0);
           break;
          case swMinutes0:  
@@ -143,30 +148,6 @@ static void init_action_menu() {
                                &(Context){.type=swMinutes10});
 }
 
-/********************************* Background Worker *********************************/
-#define WORKER_TICKS 0
-
-static void worker_message_handler(uint16_t type, AppWorkerMessage *data) {
-  if (type == WORKER_TICKS) {
-    // Read ticks from worker's packet
-    int ticks = data->data0;
-    
-     // Get time since launch
-    int seconds = ticks % 60;
-    int minutes = (ticks % 3600) / 60;
-    int hours = ticks / 3600;
-     
-    if(minutes == StopwatchMinutesVibrate && seconds == 0 && hours == 0) {
-      vibes_double_pulse();
-    }
-  
-    updateTextLayer(hours, minutes, seconds); 
-    
-  }
-}
-
-
-
 /********************************* Tick Service *********************************/
 
 static void update_time() {
@@ -210,6 +191,21 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
     }
   }
   
+  if(stopwatchsub){
+    ticks++;
+    
+    // Get time since launch
+    int seconds = ticks % 60;
+    int minutes = (ticks % 3600) / 60;
+    int hours = ticks / 3600;
+     
+    if(minutes == StopwatchMinutesVibrate && seconds == 0 && hours == 0) {
+      vibes_double_pulse();
+    }
+  
+    updateTextLayer(hours, minutes, seconds);    
+  }
+  
   update_time();
   
 }
@@ -217,32 +213,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 /*********************************** Clicks ***********************************/
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  //stopwatchsub = !stopwatchsub;
-  
-  // Check to see if the worker is currently active
-  bool running = app_worker_is_running();
-
-  // Toggle running state
-  AppWorkerResult result;
-  if (running) {
-    result = app_worker_kill();
-
-    if (result == APP_WORKER_RESULT_SUCCESS) {
-      //text_layer_set_text(s_ticks_layer, "Worker stopped!");
-    } else {
-      //text_layer_set_text(s_ticks_layer, "Error killing worker!");
-    }
-  } else {
-    result = app_worker_launch();
-
-    if (result == APP_WORKER_RESULT_SUCCESS) {
-      //text_layer_set_text(s_ticks_layer, "Worker launched!");
-    } else {
-      //text_layer_set_text(s_ticks_layer, "Error launching worker!");
-    }
-  }
-
-  APP_LOG(APP_LOG_LEVEL_INFO, "Result: %d", result);  
+  stopwatchsub = !stopwatchsub;
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -256,13 +227,8 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
 }
 
 void up_long_click_handler(ClickRecognizerRef recognizer, void *context) {
-    updateTextLayer(0,0,0);  
-}
-
-void up_long_click_release_handler(ClickRecognizerRef recognizer, void *context) {
-  if(!app_worker_is_running()) {
-     persist_write_int(PERSIST_KEY_TICKS, 0);
-  }
+    updateTextLayer(0,0,0);
+    ticks = 0;
 }
 
 void down_long_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -275,7 +241,7 @@ void down_long_click_handler(ClickRecognizerRef recognizer, void *context) {
 }
 
 void back_click_handler(ClickRecognizerRef recognizer, void *context) {
-  if(countdownsub)
+  if(countdownsub || stopwatchsub)
   { 
     
     //save data
@@ -324,7 +290,7 @@ static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_BACK, back_click_handler);
   
   // long click config:
-  window_long_click_subscribe(BUTTON_ID_UP, 700, up_long_click_handler, up_long_click_release_handler);
+  window_long_click_subscribe(BUTTON_ID_UP, 700, up_long_click_handler, up_long_click_handler);
   window_long_click_subscribe(BUTTON_ID_DOWN, 700, down_long_click_handler, down_long_click_release_handler);
   window_long_click_subscribe(BUTTON_ID_SELECT, 700, select_long_click_handler, select_long_click_release_handler);
 }
@@ -398,16 +364,22 @@ static void init(void) {
   
   init_action_menu();
   
-  int ticks;
-  
   ticks = persist_read_int(PERSIST_KEY_TICKS);
   
-   // Get time since launch
-    int seconds = ticks % 60;
-    int minutes = (ticks % 3600) / 60;
-    int hours = ticks / 3600;
+  // Get time since launch
+  int seconds = ticks % 60;
+  int minutes = (ticks % 3600) / 60;
+  int hours = ticks / 3600;
   
-    updateTextLayer(hours, minutes, seconds); 
+  updateTextLayer(hours, minutes, seconds);
+  
+  s_countdowntime = persist_read_int(PERSIST_KEY_COUNTDOWNTICKS);
+  
+  seconds = s_countdowntime % 60;
+  minutes = (s_countdowntime % 3600) / 60;
+  hours = s_countdowntime / 3600;
+  
+  updateCountdownLayer(hours, minutes, seconds);
   
   // Make sure the time is displayed from the start
   update_time();
@@ -416,12 +388,15 @@ static void init(void) {
 
   // Subscribe to TickTimerService
   tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
-  //tick_timer_service_subscribe(SECOND_UNIT, countdown_handler);
-  //tick_timer_service_subscribe(MINUTE_UNIT, tick_handler2);
-  app_worker_message_subscribe(worker_message_handler);
+}
+
+static void save(void){
+  persist_write_int(PERSIST_KEY_TICKS, ticks);
+  persist_write_int(PERSIST_KEY_COUNTDOWNTICKS, s_countdowntime);
 }
 
 static void deinit(void) {
+  save();
   // Destroy main Window
   window_destroy(s_main_window);
 }
