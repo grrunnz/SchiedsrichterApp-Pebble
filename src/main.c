@@ -364,6 +364,8 @@ static void init(void) {
   
   init_action_menu();
   
+  s_countdownstart = persist_read_int(PERSIST_KEY_COUNTDOWNSTART);
+  
   ticks = persist_read_int(PERSIST_KEY_TICKS);
   
   // Get time since launch

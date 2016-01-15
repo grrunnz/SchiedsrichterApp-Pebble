@@ -34,7 +34,7 @@ bool stopwatchsub = false;
 static int s_countdowntime = 300;
 static int s_countdownstart = 300;
 
-static int ticks;
+static int ticks = 0;
 
 static ActionMenu *s_action_menu;
 static ActionMenuLevel *s_root_level, *s_countdown_level, *s_stopwatch_level;
