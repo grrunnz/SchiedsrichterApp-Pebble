@@ -227,9 +227,11 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
 }
 
 void up_long_click_handler(ClickRecognizerRef recognizer, void *context) {
-    stopwatchsub = false;
+  if(!stopwatchsub)
+  {
     updateTextLayer(0,0,0);
     ticks = 0;
+  }
 }
 
 void down_long_click_handler(ClickRecognizerRef recognizer, void *context) {
