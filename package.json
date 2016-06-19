@@ -1,0 +1,46 @@
+{
+    "author": "grrunnz@live.de",
+    "dependencies": {},
+    "keywords": [],
+    "name": "schiedsrichterapp",
+    "pebble": {
+        "capabilities": [
+            ""
+        ],
+        "displayName": "SchiedsrichterApp",
+        "enableMultiJS": false,
+        "messageKeys": {},
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/cross.png",
+                    "name": "CROSS",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/confirm.png",
+                    "name": "CONFIRM",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/tick.png",
+                    "name": "TICK",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "basalt"
+        ],
+        "uuid": "508723dd-682d-41cb-a0fc-600701db505c",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.0.0"
+}

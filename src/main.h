@@ -31,6 +31,8 @@ int StopwatchMinutesVibrate;
 bool countdownsub = false;
 bool stopwatchsub = false;
 
+static const uint32_t segments[] = { 1000, 300, 1000 };
+
 static int s_countdowntime = 300;
 static int s_countdownstart = 300;
 

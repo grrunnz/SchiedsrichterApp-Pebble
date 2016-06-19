@@ -8,8 +8,6 @@
 #define PERSIST_KEY_STOPWATCHVIBRATE 53
 #define PERSIST_KEY_COUNTDOWNTICKS 54
 #define PERSIST_KEY_COUNTDOWNSTART 55
-  
-
 
 /********************************* UpdateDiplay *********************************/
 
@@ -171,6 +169,11 @@ static void update_time() {
   text_layer_set_text(s_time_layer, buffer);
 }
 
+VibePattern pat = {
+  .durations = segments,
+  .num_segments = ARRAY_LENGTH(segments),
+};
+
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   if(countdownsub){
     if(s_countdowntime >= 0) {
@@ -200,7 +203,8 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
     int hours = ticks / 3600;
      
     if(minutes == StopwatchMinutesVibrate && seconds == 0 && hours == 0) {
-      vibes_double_pulse();
+      
+      vibes_enqueue_custom_pattern(pat);
     }
   
     updateTextLayer(hours, minutes, seconds);    
